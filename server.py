@@ -3,7 +3,7 @@ import os
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        secret = os.environ.get("MYSECRET", "Secret not found")
+        secret = os.environ.get("MYSECRET", "Secrets not found")
         self.send_response(200)
         self.end_headers()
         self.wfile.write(f"Simple Python Demo Project: {secret}".encode())
