@@ -1,13 +1,11 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
+import time
 
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        secret = os.environ.get("MYSECRET", "Secret not found")
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(f"Simple Python Demo Project: {secret}".encode())
+def main():
+    secret = os.getenv("MY_SECRET", "no-secret")
+    while True:
+        print(f"Working... Using secret: {secret}")
+        time.sleep(10)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
-    HTTPServer(("", port), Handler).serve_forever()
+    main()
