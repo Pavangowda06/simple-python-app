@@ -3,9 +3,8 @@ import time
 
 def main():
     secret = os.getenv("MYSECRET", "no-secret")
-    while True:
-        print(f"Working... Using secret: {secret}")
-        time.sleep(10)
+    print(f"Using secret: {secret}")
+    time.sleep(5)
 
 if __name__ == "__main__":
     main()
