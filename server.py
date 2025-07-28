@@ -4,7 +4,7 @@ import requests
 
 # Hardcoded users: username -> password
 USER_CREDENTIALS = {
-    "admin": "pass123",
+    "Pavan": "pavan@123",
     "alice": "secret"
 }
 
