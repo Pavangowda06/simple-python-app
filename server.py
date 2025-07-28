@@ -2,7 +2,7 @@ import os
 import time
 
 def main():
-    secret = os.getenv("MY_SECRET", "no-secret")
+    secret = os.getenv("MYSECRET", "no-secret")
     while True:
         print(f"Working... Using secret: {secret}")
         time.sleep(10)
