@@ -6,7 +6,7 @@ class Handler(BaseHTTPRequestHandler):
         secret = os.environ.get("MYSECRET", "Secrets not found")
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(f"Simple Python Demo Project: {secret}".encode())
+        self.wfile.write(f"Simple Python Demo Project are here: {secret}".encode())
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
