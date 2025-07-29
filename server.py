@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 import requests
+import socket
 
 # Hardcoded users: username -> password
 USER_CREDENTIALS = {
@@ -8,10 +9,30 @@ USER_CREDENTIALS = {
     "alice": "secret"
 }
 
+def is_private_ip(ip):
+    # Check for common private/local IP ranges
+    private_prefixes = (
+        "10.",
+        "172.",
+        "192.168.",
+        "127.",     # localhost IPv4
+        "::1"       # localhost IPv6
+    )
+    return ip.startswith(private_prefixes)
+
+def get_public_ip():
+    try:
+        ip = requests.get('https://api.ipify.org').text.strip()
+        return ip
+    except Exception as e:
+        return None
+
 def get_location(ip):
     try:
         resp = requests.get(f"http://ip-api.com/json/{ip}")
+        resp.raise_for_status()
         data = resp.json()
+        print(f"Geo API response for IP {ip}: {data}")  # Debug print
         if data.get("status") == "success":
             city = data.get("city", "Unknown")
             region = data.get("regionName", "Unknown")
@@ -19,10 +40,20 @@ def get_location(ip):
             return f"{city}, {region}, {country}"
         else:
             return "Location not found"
-    except Exception:
-        return "Error fetching location"
+    except Exception as e:
+        return f"Error fetching location: {e}"
 
 class Handler(BaseHTTPRequestHandler):
+
+    def get_client_ip(self):
+        x_forwarded_for = self.headers.get('X-Forwarded-For')
+        if x_forwarded_for:
+            # May contain multiple IPs; take the first one
+            ip = x_forwarded_for.split(',')[0].strip()
+        else:
+            ip = self.client_address[0]
+        return ip
+
     def do_GET(self):
         if self.path == "/" or self.path == "/login":
             self.send_response(200)
@@ -60,7 +91,18 @@ class Handler(BaseHTTPRequestHandler):
 
             # Check credentials
             if USER_CREDENTIALS.get(username) == password:
-                ip = self.client_address[0]
+                ip = self.get_client_ip()
+                print(f"Detected client IP: {ip}")  # Debug print
+
+                # If IP is private or localhost, fallback to server's public IP (for local testing)
+                if is_private_ip(ip):
+                    public_ip = get_public_ip()
+                    if public_ip:
+                        print(f"Using server public IP instead: {public_ip}")
+                        ip = public_ip
+                    else:
+                        print("Could not get server public IP, using detected IP.")
+
                 location = get_location(ip)
 
                 self.send_response(200)
